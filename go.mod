@@ -15,7 +15,7 @@ require (
 	github.com/jaypipes/ghw v0.5.0 // indirect
 	github.com/mudler/anagent v0.0.0-20180810152608-626d9ac35e3e // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
-	github.com/nlopes/slack v0.6.0
+	github.com/slack-go/slack v0.6.3-0.20200301202903-5adfd061953a
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/slack-go/slack v0.6.2
 	github.com/spf13/cobra v0.0.6
