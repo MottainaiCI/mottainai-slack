@@ -50,6 +50,8 @@ func newEventRun(config *setting.Config) *cobra.Command {
 			bridge.Listen("task.created", func(c service.TaskMap) {
 				fmt.Println("[Task][Create]: ", c)
 				taskId := c["ID"].(string)
+				taskName := c["name"].(string)
+
 				api := slack.New(slackApi, slack.OptionDebug(true))
 
 				u, err := url.Parse(v.GetString("master"))
@@ -70,7 +72,7 @@ func newEventRun(config *setting.Config) *cobra.Command {
 					*/
 				}
 
-				_, _, err = api.PostMessage(slackChannel, slack.MsgOptionText("Task created", false), slack.MsgOptionAttachments(attachment))
+				_, _, err = api.PostMessage(slackChannel, slack.MsgOptionText("Task '"+taskName+"' created", false), slack.MsgOptionAttachments(attachment))
 				if err != nil {
 					fmt.Printf("%s\n", err)
 				}
@@ -78,6 +80,8 @@ func newEventRun(config *setting.Config) *cobra.Command {
 
 			bridge.Listen("task.removed", func(c service.TaskMap) {
 				taskId := c["ID"].(string)
+				taskName := c["name"].(string)
+
 				api := slack.New(slackApi, slack.OptionDebug(true))
 
 				u, err := url.Parse(v.GetString("master"))
@@ -98,7 +102,7 @@ func newEventRun(config *setting.Config) *cobra.Command {
 					*/
 				}
 
-				_, _, err = api.PostMessage(slackChannel, slack.MsgOptionText("Task removed", false), slack.MsgOptionAttachments(attachment))
+				_, _, err = api.PostMessage(slackChannel, slack.MsgOptionText("Task '"+taskName+"' removed", false), slack.MsgOptionAttachments(attachment))
 				if err != nil {
 					fmt.Printf("%s\n", err)
 				}
@@ -107,9 +111,12 @@ func newEventRun(config *setting.Config) *cobra.Command {
 			bridge.Listen("task.update", func(TaskUpdates *service.TaskUpdate) {
 
 				taskId := TaskUpdates.Task["ID"].(string)
+				taskName := TaskUpdates.Task["name"].(string)
+
 				api := slack.New(slackApi, slack.OptionDebug(true))
 
-				if _, ok := TaskUpdates.Diff["last_update_time"]; ok {
+				if _, ok := TaskUpdates.Diff["last_update_time"]; ok && len(TaskUpdates.Diff) == 1 {
+					// If only the time was updated, skip it
 					return
 				}
 
@@ -131,7 +138,7 @@ func newEventRun(config *setting.Config) *cobra.Command {
 					*/
 				}
 
-				_, _, err = api.PostMessage(slackChannel, slack.MsgOptionText("Task updated", false), slack.MsgOptionAttachments(attachment))
+				_, _, err = api.PostMessage(slackChannel, slack.MsgOptionText("Task '"+taskName+"' updated", false), slack.MsgOptionAttachments(attachment))
 				if err != nil {
 					fmt.Printf("%s\n", err)
 				}
